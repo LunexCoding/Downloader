@@ -1,0 +1,1 @@
+protocols = ['http', 'https']
