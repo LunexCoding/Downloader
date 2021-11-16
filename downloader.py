@@ -1,8 +1,14 @@
 import requests
 from requests import ConnectionError
-from debug import LOG_WARNING
 from const import protocols, codeStatusOK
+from log import initializeLogger
+import os
 
+LOGGER = initializeLogger(__name__)
+
+if not os.path.isdir("downloads"):
+    os.mkdir("downloads")
+os.chdir("downloads")
 
 class Downloader:
     def __init__(self, url=None, filename=None):
@@ -14,25 +20,22 @@ class Downloader:
     def downloadFile(self):
         try:
             if self._url.split('://')[0] not in protocols:
-                if self._url == '':
-                    invalidURL = "''"
-                    LOG_WARNING(f'Invalid URL {invalidURL} . Perhaps you meant http://{self._url}?')
-                invalidURL = self._url.split('://')[1]
-                LOG_WARNING(f'Invalid URL {self._url}. \nPerhaps you meant http://{invalidURL}?')
+                LOGGER.warning(f'{self._filename}: Invalid URL {self._url}')
             else:
                 try:
                     self._request = requests.get(self._url)
                     if self._request.status_code == codeStatusOK:
                         with open(self._filename, 'wb') as f:
                             f.write(self._request.content)
+                        LOGGER.info(f'{self._filename}: Successfully loaded.')
                     else:
-                      LOG_WARNING(f'{self._filename}: Unknown error {self._request.status_code}')
+                      LOGGER.error(f'{self._filename}: Unknown error {self._request.status_code}')
                 except ConnectionError:
-                    LOG_WARNING(f"Internet connection not detected.")
+                    LOGGER.error(f"{self._filename}: Internet connection not detected.")
         except IndexError:
-            LOG_WARNING('Invalid URL.')
+            LOGGER.error(f'{self._filename}: Invalid URL.')
         except:
-            LOG_WARNING('An unexpected error has occurred')
+            LOGGER.error(f'{self._filename}: An unexpected error has occurred.')
 
 def downloadFile(url, filename):
     downloader = Downloader(url, filename)
