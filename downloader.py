@@ -1,14 +1,10 @@
 import requests
 from requests import ConnectionError
-from const import protocols, codeStatusOK
-from log import initializeLogger
+from .const import *
+from Logger import logger
 import os
 
-LOGGER = initializeLogger(__name__)
-
-if not os.path.isdir("downloads"):
-    os.mkdir("downloads")
-os.chdir("downloads")
+LOGGER = logger.getLogger(__name__)
 
 class Downloader:
     def __init__(self, url=None, filename=None):
@@ -16,6 +12,13 @@ class Downloader:
         self._filename = filename
         self._request = None
 
+
+    def dir(self):
+        try:
+            os.mkdir('../downloads')
+            os.chdir('../downloads')
+        except OSError:
+            os.chdir('../downloads')
 
     def downloadFile(self):
         try:
@@ -25,6 +28,7 @@ class Downloader:
                 try:
                     self._request = requests.get(self._url)
                     if self._request.status_code == codeStatusOK:
+                        self.dir()
                         with open(self._filename, 'wb') as f:
                             f.write(self._request.content)
                         LOGGER.info(f'{self._filename}: Successfully loaded.')
