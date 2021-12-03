@@ -1,10 +1,7 @@
 import requests
 from requests import ConnectionError
 from .const import *
-from Logger import logger
 import os
-
-LOGGER = logger.getLogger(__name__)
 
 class Downloader:
     def __init__(self, url=None, filename=None):
@@ -23,7 +20,7 @@ class Downloader:
     def downloadFile(self):
         try:
             if self._url.split('://')[0] not in protocols:
-                LOGGER.warning(f'{self._filename}: Invalid URL {self._url}')
+               print(f'Invalid URL {self._url}')
             else:
                 try:
                     self._request = requests.get(self._url)
@@ -31,15 +28,14 @@ class Downloader:
                         self.dir()
                         with open(self._filename, 'wb') as f:
                             f.write(self._request.content)
-                        LOGGER.info(f'{self._filename}: Successfully loaded.')
                     else:
-                      LOGGER.error(f'{self._filename}: Unknown error {self._request.status_code}')
+                      print(f'Unknown error {self._request.status_code}')
                 except ConnectionError:
-                    LOGGER.error(f"{self._filename}: Internet connection not detected.")
+                    print(f"Internet connection not detected.")
         except IndexError:
-            LOGGER.error(f'{self._filename}: Invalid URL.')
+            print(f'Invalid URL.')
         except:
-            LOGGER.error(f'{self._filename}: An unexpected error has occurred.')
+            print(f'An unexpected error has occurred.')
 
 def downloadFile(url, filename):
     downloader = Downloader(url, filename)
